@@ -62,7 +62,7 @@ You'll receive a list of BCS words. For each word in the input list, return a JS
     *   It should be short and clear.
     *   If the word has multiple distinct senses, list them separately using numbered entries like `1. ...`, `2. ...`. 
     *   - Keep each sense short and clear. 
-    *   - If the meanings are subtle variations, combine them into a single sentence. 
+    *   - If the meanings are subtle variations, combine them into a single definition. 
     *   - Do not force multiple senses if only one is appropriate.
     *   Use natural, conversational language. Avoid overly academic phrasing.
     *   If possible, include both literal and abstract meanings.
@@ -120,22 +120,6 @@ Return your output as a single **JSON array**, one object per word.
 Your response must be *only* the JSON array. It must start with `[` and end with `]`.
 Do not include any other text, explanations, or markdown formatting (like `json` or ```) before or after the JSON array.
 
-**Example Sentences Sets:**
-
-For "neovisnost":
-[
-  "{{{{c1::Neovisnost}}}} jedne zemlje vrijedi više od zlata.",
-  "Putujući sama, osjetila je moć {{{{c1::neovisnosti}}}}.",
-  "Njena {{{{c1::neovisnost}}}} plašila je one koji su voljeli kontrolu."
-]
-
-For "prozvati":
-[
-  "Majka me {{{{c1::prozvala}}}} jer sam ukrao smokve.",
-  "Publika ga je {{{{c1::prozvala}}}} herojem nakon govora.",
-  "Starac ju je {{{{c1::prozvao}}}} anđelom u posljednjem dahu."
-]
-
 **Example Output Format:**
 [
   {{
@@ -160,43 +144,51 @@ For "prozvati":
 Word list: {word_list}
 """
 
-IMAGE_GENERATION_PROMPT = """
-Create a visually clear and educational image to illustrate the meaning of the word:
-"{word}" (a word in Bosnian/Croatian/Serbian).
-The image should help a language learner remember the word.
-Avoid text or writing in the image.
-"""
-
 PROMPT_IMAGE_PROMPT_GENERATOR = """
-You will receive a vocabulary word, its part of speech, and a short list of its core definitions or senses. 
-Your task is to generate a prompt for an AI image generation model that will produce a pedagogically useful image 
-for a language learning flashcard.
+You will receive a BCS vocabulary word, its part of speech, and a short list of definitions.
 
-The image should visually communicate the meaning(s) of the word **without any text**, and must be suitable for learners 
-to infer meaning from context.
+⟡  TASK  
+Generate **one** English-language prompt (≤ 30 words) for an AI image generator that will yield a pedagogically useful flash-card illustration.
 
-Instructions for image generation prompt:
-- If the word has multiple distinct meanings, depict them using separate comic panels or a single symbolic integration.
-- Be specific and concrete about the visual scenes or scenarios that should appear.
-- Choose a visual style appropriate to the word (e.g., cartoon for verbs and actions, diagram or metaphor for abstract nouns, photorealistic for common objects).
-- Focus on clarity and pedagogical usefulness.
+⟡  GLOBAL CONSTRAINTS  
+– Absolutely **no text, captions, logos, or watermarks** in the image.  
+– The prompt itself is plain text only (no quotes, no code fences).
 
-Return only the image generation prompt as a string. Do not include any extra text, comments, or formatting.
+⟡  COMPOSITION RULES  
+1  Single-sense word → **one cohesive scene** with **one clear focal subject** (max 3 supporting objects).  
+2  Multi-sense word → EITHER  
+     a) up to **three separate comic panels** one panel per sense, **or**  
+     b) one integrated symbolic composition that encodes all senses.  
+3  Favor archetypal, metaphorical, or emotionally resonant imagery over literal crowds of examples.  
+4  Use adjectives sparingly but precisely (e.g., "minimalist line-art", "soft chiaroscuro lighting").  
+5  Avoid enumerating: describe the scene, not a shopping list of actors.
 
-Example input:
-{{
-  "word": "spring",
-  "pos": "noun",
-  "definitions": [
-    "a season between winter and summer",
-    "a coiled object that bounces back when compressed",
-    "a natural source of water coming from the ground"
-  ]
+⟡  OUTPUT FORMAT  
+Return **only** the 30-word-max image prompt.
+
+⟡  EXAMPLES  
+Input:  
+{{  
+  "word": "proljeće",  
+  "pos": "imenica",  
+  "definitions": ["godišnje doba između zime i ljeta"]  
 }}
 
-Expected output (image generation prompt):
-"A three-panel cartoon showing: (1) blooming trees and people enjoying warm weather, (2) a hand pressing a metal coil that rebounds, and (3) water bubbling out of a rocky hillside in a forest. No text or labels. Clear, educational style suitable for language learning flashcards."
+Correct output (22 words):  
+Atmospheric realist meadow: fresh wildflowers, budding cherry tree, gentle brook under warm sunrise mist, single swallow gliding—evokes rebirth of spring; no text.
 
-Now generate the image prompt for the following word:
-{input_json}
+Input:  
+{{  
+  "word": "prodrijeti",  
+  "pos": "glagol",  
+  "definitions": ["probiti kroz barijeru","ući duboko u oblast","proširiti se u neprijateljsku teritoriju"]  
+}}
+
+Correct output (three-panel form, 29 words):  
+panel 1: spear shatters wooden gate; panel 2: explorer steps into dense emerald jungle; panel 3: neon data stream breaches firewall—stylistic comic triptych symbolising breakthrough; no text.
+
+Now generate the image prompt for:  
+{input_data}
 """
+
+

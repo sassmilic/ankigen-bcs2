@@ -201,6 +201,11 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
+# Project-specific ignores
+data/history.sqlite
+tests/fixtures/fixtures/*.yaml
+tmp/images/
+
 # Marimo
 marimo/_static/
 marimo/_lsp/

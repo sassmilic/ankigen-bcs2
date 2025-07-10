@@ -60,7 +60,7 @@ class StageStatus(BaseModel):
     completed_at: Optional[datetime] = None
 ```
 
-*For words of type **SIMPLE**, lower-stage flags remain `False`; this is intentional and drives skip-logic.*
+_For words of type **SIMPLE**, lower-stage flags remain `False`; this is intentional and drives skip-logic._
 
 ---
 
@@ -111,7 +111,7 @@ async def call_chat(model: str, messages: list[dict]) -> str:
     return resp.choices[0].message.content
 ```
 
-*Token budget heuristic: `≈ 60 tokens × batch ≤ context_window − margin`.*
+_Token budget heuristic: `≈ 60 tokens × batch ≤ context_window − margin`._
 
 ---
 
@@ -141,7 +141,7 @@ async def run_metadata(entry: WordEntry):
    type;2;3
    ```
 
-2. Populate rows per Anki’s *Basic* and *Cloze* formats (see functional spec).
+2. Populate rows per Anki’s _Basic_ and _Cloze_ formats (see functional spec).
 
 3. Images referenced as `<img src="uuid_canonical.jpg">`.
 
@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS words(
 );
 ```
 
-*Skip previously processed words unless `--force`; update row after each stage.*
+_Skip previously processed words unless `--force`; update row after each stage._
 
 ---
 
@@ -205,9 +205,9 @@ python -m anki_vocab.cli --model gpt-4o --batch 10
 
 ### 10.2 Cassette Invalidation
 
-* Hash `prompts.py` (`SHA-256`, first 8 chars).
-* Cassette filenames: `fixtures/metadata_<hash>.yaml`.
-* Hash mismatch + no `ANKI_VOCAB_LIVE` → skip test with instructive message.
+- Hash `prompts.py` (`SHA-256`, first 8 chars).
+- Cassette filenames: `fixtures/metadata_<hash>.yaml`.
+- Hash mismatch + no `ANKI_VOCAB_LIVE` → skip test with instructive message.
 
 ### 10.3 Human-in-the-Loop Gate (live only)
 
