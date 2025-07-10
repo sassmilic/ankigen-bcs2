@@ -18,8 +18,8 @@ BATCH_SIZE = int(os.getenv("BATCH_SIZE", "20"))
 MAX_PARALLEL_REQUESTS = int(os.getenv("MAX_PARALLEL_REQUESTS", "5"))
 
 # Image Configuration
-IMAGE_PROVIDER = os.getenv("IMAGE_PROVIDER", "gpt-image-1")  # "dalle" or "pexels"
-IMAGE_SIZE = os.getenv("IMAGE_SIZE", "1024x1024")  # "1024x1024", "1792x1024", "1024x1792"
+IMAGE_PROVIDER = os.getenv("IMAGE_PROVIDER", "gpt-image-1")  # "gpt-image-1" or "dall-e-3"
+IMAGE_SIZE = os.getenv("IMAGE_SIZE", "1792x1024")  # "1792x1024" (wide canvas), "1024x1024", "1024x1792"
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0.7"))  # Image generation temperature (0.0-1.0)
 
 # Directory Configuration

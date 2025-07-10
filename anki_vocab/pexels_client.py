@@ -23,7 +23,7 @@ async def search_pexels_images(query: str, count: int = 3) -> List[str]:
         "query": query,
         "per_page": count,
         "orientation": "landscape",
-        "size": "small"  # Smallest size for mobile Anki
+        "size": "medium"
     }
     
     try:
@@ -37,7 +37,6 @@ async def search_pexels_images(query: str, count: int = 3) -> List[str]:
                     data = await response.json()
                     photos = data.get("photos", [])
                     
-                    # Get the smallest image URL for each photo
                     image_urls = []
                     for photo in photos[:count]:
                         src = photo.get("src", {})

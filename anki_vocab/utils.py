@@ -32,6 +32,8 @@ def load_words_from_file(file_path: Path) -> List[str]:
 
 def init_database():
     """Initialize the SQLite database for tracking processed words."""
+    db_exists = HISTORY_DB.exists()
+    
     conn = sqlite3.connect(HISTORY_DB)
     cursor = conn.cursor()
     
@@ -45,7 +47,11 @@ def init_database():
     
     conn.commit()
     conn.close()
-    log.info("Database initialized", db_path=str(HISTORY_DB))
+    
+    if db_exists:
+        log.info("Database connected", db_path=str(HISTORY_DB))
+    else:
+        log.info("Database created", db_path=str(HISTORY_DB))
 
 
 def get_word_status(canonical_form: str) -> Optional[StageStatus]:

@@ -83,9 +83,15 @@ class Pipeline:
         
         # Check which words need processing
         words_to_process = []
+        skipped_words = []
         for entry in entries:
             if self.test_mode or self.force or not get_word_status(entry.original):
                 words_to_process.append(entry)
+            else:
+                skipped_words.append(entry.original)
+        
+        if skipped_words:
+            log.info("Stage 1: Skipping words already in database", words=skipped_words)
         
         if not words_to_process:
             log.info("Stage 1: All words already processed")
@@ -129,6 +135,7 @@ class Pipeline:
         
         # Check which words need processing
         words_to_process = []
+        skipped_words = []
         for entry in entries:
             if self.test_mode:
                 words_to_process.append(entry)
@@ -136,6 +143,11 @@ class Pipeline:
                 status = get_word_status(entry.canonical_form)
                 if self.force or not status or not status.definition:
                     words_to_process.append(entry)
+                else:
+                    skipped_words.append(entry.original)
+        
+        if skipped_words:
+            log.info("Stage 2: Skipping words with existing definitions", words=skipped_words)
         
         if not words_to_process:
             log.info("Stage 2: All words already processed")
@@ -177,6 +189,7 @@ class Pipeline:
         
         # Check which words need processing
         words_to_process = []
+        skipped_words = []
         for entry in entries:
             if self.test_mode:
                 words_to_process.append(entry)
@@ -184,6 +197,11 @@ class Pipeline:
                 status = get_word_status(entry.canonical_form)
                 if self.force or not status or not status.examples:
                     words_to_process.append(entry)
+                else:
+                    skipped_words.append(entry.original)
+        
+        if skipped_words:
+            log.info("Stage 3: Skipping words with existing examples", words=skipped_words)
         
         if not words_to_process:
             log.info("Stage 3: All words already processed")
@@ -225,6 +243,7 @@ class Pipeline:
         
         # Check which words need processing
         words_to_process = []
+        skipped_words = []
         for entry in entries:
             if self.test_mode:
                 words_to_process.append(entry)
@@ -232,6 +251,11 @@ class Pipeline:
                 status = get_word_status(entry.canonical_form)
                 if self.force or not status or not status.image_prompt:
                     words_to_process.append(entry)
+                else:
+                    skipped_words.append(entry.original)
+        
+        if skipped_words:
+            log.info("Stage 4: Skipping words with existing image prompts", words=skipped_words)
         
         if not words_to_process:
             log.info("Stage 4: All words already processed")
@@ -255,6 +279,9 @@ class Pipeline:
                     response = await call_chat(MODEL_NAME, messages)
                     entry.image_prompt = response.strip()
                     
+                    # Log the generated image prompt
+                    log.info("Image prompt generated", word=entry.original, prompt=entry.image_prompt)
+                    
                     # Update database (skip in test mode)
                     if not self.test_mode:
                         status = get_word_status(entry.canonical_form) or StageStatus(metadata=True, definition=True, examples=True)
@@ -275,8 +302,30 @@ class Pipeline:
         """Stage 5: Generate or fetch images for all words."""
         log.info("Starting Stage 5: Images", count=len(entries))
         
-        # Process each word individually (sequential for image generation)
+        # Check which words need processing
+        words_to_process = []
+        skipped_words = []
         for entry in entries:
+            if not entry.canonical_form:
+                continue
+                
+            if not self.test_mode:
+                status = get_word_status(entry.canonical_form)
+                if not self.force and status and status.image_generation:
+                    skipped_words.append(entry.original)
+                    continue
+            
+            words_to_process.append(entry)
+        
+        if skipped_words:
+            log.info("Stage 5: Skipping words with existing images", words=skipped_words)
+        
+        if not words_to_process:
+            log.info("Stage 5: All words already processed")
+            return
+        
+        # Process each word individually (sequential for image generation)
+        for i, entry in enumerate(words_to_process):
             if not entry.canonical_form:
                 continue
                 
@@ -298,6 +347,10 @@ class Pipeline:
                     status = get_word_status(entry.canonical_form) or StageStatus()
                     status.image_generation = True
                     update_word_status(entry.canonical_form, status)
+                
+                # Add delay between image generation requests to avoid rate limits
+                if i < len(words_to_process) - 1:  # Don't delay after the last one
+                    await asyncio.sleep(3)  # 3 second delay between requests
                 
             except Exception as e:
                 log.error("Image processing failed", word=entry.original, error=str(e))
@@ -336,7 +389,7 @@ class Pipeline:
             return
         
         try:
-            image_url = await generate_image(entry.image_prompt, size="1024x1024", temperature=self.temperature)
+            image_url = await generate_image(entry.image_prompt)
             filename = generate_image_filename(entry.canonical_form)
             file_path = await download_image(image_url, filename)
             
