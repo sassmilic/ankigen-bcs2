@@ -116,8 +116,7 @@ def write_anki_csv(words: List[WordEntry]):
         # Write Anki CSV header
         writer.writerow(['#separator:;'])
         writer.writerow(['#html:true'])
-        writer.writerow(['#notetype column:0'])
-        writer.writerow(['type', '2', '3'])
+        writer.writerow(['#notetype column:1'])
         
         for word in words:
             if not word.canonical_form:
@@ -133,12 +132,13 @@ def write_anki_csv(words: List[WordEntry]):
             
             # Example sentence cards (Cloze)
             if word.example_sentences:
-                for sentence in word.example_sentences:
-                    writer.writerow([
-                        'Cloze',
-                        sentence,
-                        ''  # Extra field
-                    ])
+                # Join all example sentences as HTML bulletpoints in a single card
+                bulletpoints = "<ul>" + "".join(f"<li>{sentence}</li>" for sentence in word.example_sentences) + "</ul>"
+                writer.writerow([
+                    'Cloze',
+                    bulletpoints,
+                    ''  # Extra field
+                ])
             
             # Image ↔ word cards (Basic)
             if word.image_files:
@@ -164,7 +164,15 @@ def generate_copy_script():
     """Generate the script to copy images to Anki collection media folder."""
     script_content = f'''#!/usr/bin/env bash
 # Copy generated images to Anki collection media folder
-DEST="${{ANKI_COLLECTION_FILE_PATH:-$HOME/Anki/User 1/collection.media/}}"
+
+# Expand tilde in ANKI_COLLECTION_FILE_PATH if it starts with ~
+if [ -n "$ANKI_COLLECTION_FILE_PATH" ]; then
+    DEST="${{ANKI_COLLECTION_FILE_PATH/#\\~/$HOME}}"
+else
+    DEST="$HOME/Anki/User 1/collection.media"
+fi
+
+echo "Copying images to: $DEST"
 rsync -av {TEMP_DIR}/ "$DEST"
 echo "Images copied to Anki collection media folder: $DEST"
 '''
