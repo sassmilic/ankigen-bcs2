@@ -31,13 +31,6 @@ anki_vocab/
     └── images/             # generated / fetched images (🗄 .gitignored)
 ```
 
-**Add to `.gitignore`**
-
-```gitignore
-# Temporary media for Anki – do NOT commit
-tmp/images/**
-```
-
 ---
 
 ## 2 · Data Model (`models.py`)
@@ -73,7 +66,7 @@ class StageStatus(BaseModel):
 
 ## 3 · Prompts (`prompts.py`)
 
-`prompts.py` will be supplied by **you** and must export these module-level constants:
+`prompts.py` will be supplied by me and will export these module-level constants:
 
 ```python
 PROMPT_WORD_METADATA          # Stage 1
@@ -284,7 +277,3 @@ def test_cli_dry_run(tmp_path):
     r = run(["anki-vocab", "--dry-run", "-i", tmp_path / "words.txt"], stdout=PIPE)
     assert r.returncode == 0
 ```
-
----
-
-**End of testing specification – Cursor LLM must implement all fixtures, helpers, and interactive prompt.**
