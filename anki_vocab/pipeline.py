@@ -38,12 +38,20 @@ class Pipeline:
         # Initialize word entries
         entries = [WordEntry(original=word) for word in words]
         
-        # Process in batches
-        results = []
+        # Create batches
+        batches = []
         for i in range(0, len(entries), BATCH_SIZE):
             batch = entries[i:i + BATCH_SIZE]
-            batch_results = await self._process_batch(batch)
-            results.extend(batch_results)
+            batches.append(batch)
+        
+        # Process batches in parallel
+        batch_tasks = [self._process_batch(batch) for batch in batches]
+        batch_results = await asyncio.gather(*batch_tasks)
+        
+        # Flatten results
+        results = []
+        for batch_result in batch_results:
+            results.extend(batch_result)
         
         log.info("Batch processing completed", total_words=len(results))
         return results

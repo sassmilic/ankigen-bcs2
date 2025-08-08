@@ -56,7 +56,7 @@ def init_database():
 
 def get_word_status(canonical_form: str) -> Optional[StageStatus]:
     """Get the processing status of a word from the database."""
-    conn = sqlite3.connect(HISTORY_DB)
+    conn = sqlite3.connect(HISTORY_DB, timeout=30.0)
     cursor = conn.cursor()
     
     cursor.execute(
@@ -74,7 +74,7 @@ def get_word_status(canonical_form: str) -> Optional[StageStatus]:
 
 def update_word_status(canonical_form: str, stage_status: StageStatus):
     """Update the processing status of a word in the database."""
-    conn = sqlite3.connect(HISTORY_DB)
+    conn = sqlite3.connect(HISTORY_DB, timeout=30.0)
     cursor = conn.cursor()
     
     cursor.execute("""
