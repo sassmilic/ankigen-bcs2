@@ -250,7 +250,7 @@ def live_guard():
 
 ```python
 import pytest, asyncio
-from anki_vocab.pipeline import process_batch
+from anki_vocab.pipeline import process
 from anki_vocab.models import WordEntry
 from tests.conftest import my_vcr, cassette, live_guard
 
@@ -259,7 +259,7 @@ def test_roundtrip_live(my_vcr):
     live_guard()
     entry = WordEntry(original="jabuka")
     with my_vcr.use_cassette(cassette("roundtrip")):
-        asyncio.run(process_batch([entry]))
+        asyncio.run(process([entry]))
     print("\n=== MANUAL CHECK =====================================")
     print("canonical :", entry.canonical_form)
     print("translation :", entry.translation)

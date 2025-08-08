@@ -4,7 +4,7 @@ import pytest
 import asyncio
 from pathlib import Path
 
-from anki_vocab.pipeline import process_batch
+from anki_vocab.pipeline import process
 from anki_vocab.models import WordEntry
 from tests.conftest import my_vcr, cassette, live_guard
 
@@ -17,7 +17,7 @@ def run_word_test(vcr_obj, word: str, cassette_name: str, expected_type: str,
     entry = WordEntry(original=word)
     
     with vcr_obj.use_cassette(cassette(cassette_name)):
-        results = asyncio.run(process_batch([entry.original], test_mode=True))
+        results = asyncio.run(process([entry.original], test_mode=True))
     
     processed_word = results[0].word if results else None
     assert processed_word is not None

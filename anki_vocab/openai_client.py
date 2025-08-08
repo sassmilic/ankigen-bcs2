@@ -40,7 +40,7 @@ def create_openai_retry_decorator():
     )
 
 
-async def call_chat(model: str, messages: List[Dict[str, str]]) -> str:
+async def generate_response(model: str, messages: List[Dict[str, str]]) -> str:
     """Call OpenAI Chat API with retry logic."""
     from tenacity import RetryError
     
@@ -72,10 +72,10 @@ async def call_chat(model: str, messages: List[Dict[str, str]]) -> str:
         raise
 
 
-async def call_chat_json(model: str, messages: List[Dict[str, str]]) -> List[Dict[str, Any]]:
+async def generate_response_json(model: str, messages: List[Dict[str, str]]) -> List[Dict[str, Any]]:
     """Call OpenAI Chat API and parse JSON response."""
     try:
-        response = await call_chat(model, messages)
+        response = await generate_response(model, messages)
         
         # Clean the response to extract JSON
         response = response.strip()

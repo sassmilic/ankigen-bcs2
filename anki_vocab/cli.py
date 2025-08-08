@@ -6,7 +6,7 @@ import structlog
 from pathlib import Path
 
 from .config import INPUT_WORDS_FILE, MODEL_NAME, BATCH_SIZE, MAX_PARALLEL_REQUESTS, TEMPERATURE
-from .pipeline import process_batch
+from .pipeline import process
 from .utils import (
     load_words_from_file, init_database, write_anki_csv, generate_copy_script
 )
@@ -131,7 +131,7 @@ def main(input: Path, model: str, batch_size: int, max_parallel: int,
         
         # Process words
         async def run_pipeline():
-            return await process_batch(words, force=force, temperature=temperature)
+            return await process(words, force=force, temperature=temperature)
         
         results = asyncio.run(run_pipeline())
         
